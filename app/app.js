@@ -9,13 +9,17 @@ var showToast = function (text) {
 application.start({ moduleName: "main-page" });
 if (application.android) {
     application.onLaunch = function (intent) {
-        if (intent.getAction() === "android.intent.action.SEND" && intent.getType() === "text/plain") {
+        if (intent.getAction() !== "android.intent.action.SEND" || intent.getType() !== "text/plain") {
+            showToast("Please launch app from pixiv share");
+        } else {
             var clipData = intent.getClipData();
             var text = clipData.getItemAt(0).getText();
 
             var matchingURL = text.match(/https?:\/\/[\-A-Za-z0-9+&@#\/%?=~_|!.]+/);
 
-            if (matchingURL !== null) {
+            if (matchingURL === null) {
+                showToast("No URL found in string");
+            } else {
                 var url = matchingURL[0];
 
                 var id = null, match = null;
@@ -43,11 +47,7 @@ if (application.android) {
                         showToast("Error occured: " + e);
                     });
                 }
-            } else {
-                showToast("No URL found in string");
             }
-        } else {
-            showToast("Please launch app from pixiv share");
         }
     };
 }
